@@ -97,4 +97,6 @@ While tools like Nuitka and PyInstaller package the CPython interpreter (and its
 
 ---
 
+*transpilatron was originally created to compile standalone `initramfs` boot scripts for [Noodlix](https://github.com/noodlixproject), a Python-only operating system — but works for any Python application.*
+
 *Outputs fully static binaries. Runs even in initramfs. No dynamic linker required.*
