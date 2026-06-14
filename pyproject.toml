@@ -1,0 +1,21 @@
+[project]
+name = "transpilatron"
+version = "7.0.2"
+description = "A tool for transpiling code from python to C using AI agents."
+readme = "README.md"
+authors = [
+    { name = "Johnny Konczal", email = "johndrostan@outlook.com" }
+]
+requires-python = ">=3.14"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "twine>=6.2.0",
+]
+[project.scripts]
+transpilatron = "transpilatron.agent:main"
