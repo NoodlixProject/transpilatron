@@ -1,6 +1,6 @@
 [project]
 name = "transpilatron"
-version = "8.0.0"
+version = "8.1.0"
 description = "A tool for transpiling code from python to C using AI agents."
 readme = "README.md"
 authors = [
