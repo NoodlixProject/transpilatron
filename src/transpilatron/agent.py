@@ -3,7 +3,7 @@ import subprocess
 import sys
 import os
 from platform import system
-from .prompts import MINIMAL_PROMPT, USUAL_PROMPT
+from .prompts import MINIMAL_PROMPT, FULL_PROMPT
 
 
 def ensure_pool():
@@ -45,7 +45,7 @@ def run(entry_file: str, mode: str):
     if mode == "minimal":
         prompt_body = MINIMAL_PROMPT
     else:
-        prompt_body = USUAL_PROMPT
+        prompt_body = FULL_PROMPT
 
     # --- sysprompt is the base behavior layer ---
     prompt = (
@@ -84,16 +84,16 @@ def main():
         help="Use minimal mode: static linking, raw sockets only, no torch/tflite/web frameworks",
     )
     parser.add_argument(
-        "--usual",
+        "--full",
         action="store_const",
         dest="mode",
-        const="usual",
-        help="Use usual mode (default): dynamic linking, libcurl, libtorch, tflite, web frameworks",
+        const="full",
+        help="Use full mode (default): dynamic linking, libcurl, libtorch, tflite, web frameworks",
     )
     parser.add_argument("entry_file", help="Python entry file to transpile")
     args = parser.parse_args()
 
-    mode = args.mode if args.mode else "usual"
+    mode = args.mode if args.mode else "full"
     run(args.entry_file, mode)
 
 

@@ -52,7 +52,7 @@ No runtime, no interpreter, no dependencies.
 <ol>
     <li>Reads your Python entry file and follows all imports</li>
     <li>Transpiles the full project to C</li>
-    <li>Writes a Makefile and compiles (static linking for minimal, dynamic for usual)</li>
+    <li>Writes a Makefile and compiles (static for --minimal, dynamic for --full)</li>
     <li>Drops the binary in out/</li>
 </ol>
 
@@ -91,7 +91,7 @@ authenticate with <a href="https://poolside.ai/">poolside</a>.
 
 <h2>Usage</h2>
 
-<pre><code># Default mode (usual) — dynamic linking, libcurl, torch/tflite, web frameworks
+<pre><code># Default mode (full) — dynamic linking, libcurl, torch/tflite, web frameworks
 uvx transpilatron your_code.py
 
 # Minimal mode — fully static, raw sockets, no torch/tflite
@@ -105,7 +105,7 @@ The binary lands at <code>out/&lt;your_code&gt;</code>. That's it.
 
 <ul>
     <li>Pure Python logic → idiomatic C</li>
-    <li>HTTP (requests, urllib3) → raw BSD sockets (minimal) or libcurl (usual)</li>
+    <li>HTTP (requests, urllib3) → raw BSD sockets (--minimal) or libcurl (--full)</li>
     <li>JSON → cJSON</li>
     <li>Threading → pthreads</li>
     <li>File I/O → POSIX syscalls</li>
@@ -113,8 +113,8 @@ The binary lands at <code>out/&lt;your_code&gt;</code>. That's it.
     <li>Detects and fixes common Python bugs during transpilation</li>
     <li>Supports many major Python libraries with C extensions by using their C backends or alternatives</li>
     <li>The system attempts to translate pure Python libraries as well</li>
-    <li>Web frameworks (flask, fastapi, django) → libmicrohttpd (usual only)</li>
-    <li>torch / tensorflow → libtorch / TFLite C API (usual only)</li>
+    <li>Web frameworks (flask, fastapi, django) → libmicrohttpd (--full only)</li>
+    <li>torch / tensorflow → libtorch / TFLite C API (--full only)</li>
 </ul>
 
 <h2>Modes</h2>
@@ -139,7 +139,7 @@ The binary lands at <code>out/&lt;your_code&gt;</code>. That's it.
         <td>Zero-dependency binaries for initramfs, scratch containers, embedded</td>
     </tr>
     <tr>
-        <td>usual</td>
+        <td>full</td>
         <td><strong>✓</strong></td>
         <td>Dynamic permitted</td>
         <td>libcurl</td>

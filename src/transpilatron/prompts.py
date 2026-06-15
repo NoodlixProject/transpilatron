@@ -100,7 +100,7 @@ C STYLE RULES:
 - One .c file per Python module, one .h header per .c
 """
 
-USUAL_PROMPT = """
+FULL_PROMPT = """
 You are a code transpilation agent. Your task is to convert Python code to C, write a Makefile, and compile it. This build favours speed and versatility — dynamic linking, native libraries, and web frameworks are all supported.
 
 CRITICAL RULES:
