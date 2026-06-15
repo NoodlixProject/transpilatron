@@ -1,8 +1,9 @@
+import argparse
 import subprocess
 import sys
 import os
 from platform import system
-from .sysprompt import sysprompt
+from .prompts import MINIMAL_PROMPT, USUAL_PROMPT
 
 
 def ensure_pool():
@@ -27,7 +28,7 @@ def ensure_pool():
         subprocess.run(["pool", "login"], check=True)
 
 
-def run(entry_file: str):
+def run(entry_file: str, mode: str):
     if system().lower() == "windows":
         sys.exit("Windows not supported")
 
@@ -40,9 +41,15 @@ def run(entry_file: str):
 
     project_dir = os.path.dirname(entry_file)
 
+    # Select prompt based on mode
+    if mode == "minimal":
+        prompt_body = MINIMAL_PROMPT
+    else:
+        prompt_body = USUAL_PROMPT
+
     # --- sysprompt is the base behavior layer ---
     prompt = (
-        sysprompt
+        prompt_body
         + "\n\n"
         + "TASK:\n"
         + "Convert this Python project into C.\n"
@@ -68,10 +75,26 @@ def run(entry_file: str):
 
 
 def main():
-    if len(sys.argv) != 2:
-        sys.exit("Usage: transpilatron <file.py>")
+    parser = argparse.ArgumentParser(description="Transpile Python to C via AI agent.")
+    parser.add_argument(
+        "--minimal",
+        action="store_const",
+        dest="mode",
+        const="minimal",
+        help="Use minimal mode: static linking, raw sockets only, no torch/tflite/web frameworks",
+    )
+    parser.add_argument(
+        "--usual",
+        action="store_const",
+        dest="mode",
+        const="usual",
+        help="Use usual mode (default): dynamic linking, libcurl, libtorch, tflite, web frameworks",
+    )
+    parser.add_argument("entry_file", help="Python entry file to transpile")
+    args = parser.parse_args()
 
-    run(sys.argv[1])
+    mode = args.mode if args.mode else "usual"
+    run(args.entry_file, mode)
 
 
 if __name__ == "__main__":
