@@ -17,11 +17,11 @@ uvx transpilatron your_code.py
 
 ## How it works
 
-transpilatron uses an AI agent to convert your Python project into C, compiles it (using `-O2` or `-O3` flags), and hands you a fully static binary. No runtime, no interpreter, no dependencies.
+transpilatron uses an AI agent to convert your Python project into C, compiles it (using `-O2` or `-O3` flags), and hands you a native binary. No runtime, no interpreter, no dependencies.
 
 1. Reads your Python entry file and follows all imports
 2. Transpiles the full project to C
-3. Writes a Makefile and compiles with static linking
+3. Writes a Makefile and compiles (static linking for `--minimal`, dynamic for `--usual`)
 4. Drops the binary in `out/`
 
 ## Requirements
@@ -48,7 +48,11 @@ On first run, the tool installs its dependencies, and asks you to authenticate w
 ## Usage
 
 ```bash
+# Default mode (usual) — dynamic linking, libcurl, torch/tflite, web frameworks
 uvx transpilatron your_code.py
+
+# Minimal mode — fully static, raw sockets, no torch/tflite
+uvx transpilatron --minimal your_code.py
 ```
 
 The binary lands at `out/<your_code>`. That's it.
@@ -56,7 +60,7 @@ The binary lands at `out/<your_code>`. That's it.
 ## What it handles
 
 - Pure Python logic → idiomatic C
-- HTTP (`requests`, `urllib3`) → raw BSD sockets
+- HTTP (`requests`, `urllib3`) → raw BSD sockets (`--minimal`) or libcurl (`--usual`)
 - JSON → cJSON
 - Threading → pthreads  
 - File I/O → POSIX syscalls
@@ -64,11 +68,22 @@ The binary lands at `out/<your_code>`. That's it.
 - Detects and fixes common Python bugs during transpilation
 - Supports many major Python libraries with C extensions by simply using their C backends or alternatives
 - The system attempts to translate pure Python libraries as well
+- Web frameworks (`flask`, `fastapi`, `django`) → libmicrohttpd (`--usual` only)
+- `torch` / `tensorflow` → libtorch / TFLite C API (`--usual` only)
+
+## Modes
+
+transpilatron has two transpilation modes:
+
+| Flag | Default | Linking | HTTP | torch/tensorflow | Web Frameworks | Best for |
+|------|---------|---------|------|------------------|----------------|----------|
+| `--minimal` | | Static only | Raw BSD sockets | Aborts with error | Not supported | Zero-dependency binaries for initramfs, scratch containers, embedded |
+| `--usual` | **✓** | Dynamic permitted | libcurl | libtorch / TFLite C API | libmicrohttpd | General use, speed + versatility |
 
 ## Limitations
 
 - Linux and macOS only
-- `torch` / `tensorflow` — not supported (aborts with a clear error)
+- `torch` / `tensorflow` — not supported under `--minimal` (aborts with a clear error); supported under `--usual`
 - Some dynamic Python patterns (metaclasses, heavy monkey-patching) may not translate cleanly
 
 ## Examples
@@ -99,4 +114,4 @@ While tools like Nuitka and PyInstaller package the CPython interpreter (and its
 
 *transpilatron was originally created to compile standalone `initramfs` boot scripts for [Noodlix](https://github.com/noodlixproject), a Python-only operating system — but works for any Python application.*
 
-*Outputs fully static binaries. Runs even in initramfs. No dynamic linker required.*
+*`--minimal` outputs fully static binaries. Runs even in initramfs. No dynamic linker required.*
