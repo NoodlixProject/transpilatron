@@ -1,5 +1,3 @@
-
-
 <h1>transpilatron</h1>
 
 <p><strong>Write Python. Get a native C binary. No C knowledge required.</strong></p>
@@ -29,16 +27,11 @@
     </tr>
 </table>
 
-<p>
-Verified on the same machine. Same output. Fully static binaries.
-</p>
+<p>Verified on the same machine. Same output. Fully static binaries.</p>
 
 <pre><code>Benchmarker's PC:
-
 CPU: Ryzen 5 5500
-
 Python 3.14
-
 Zorin OS 18</code></pre>
 
 <h2>How it works</h2>
@@ -52,8 +45,11 @@ No runtime, no interpreter, no dependencies.
 <ol>
     <li>Reads your Python entry file and follows all imports</li>
     <li>Transpiles the full project to C</li>
-    <li>Writes a Makefile and compiles (static for --minimal, dynamic for --full)</li>
-    <li>Drops the binary in out/</li>
+    <li>Writes a Makefile and compiles (static for <code>--minimal</code>, dynamic for <code>--full</code>)</li>
+    <li>Automatically installs any missing build tools (gcc, make, valgrind) via your system package manager</li>
+    <li>Runs the binary under valgrind to verify zero memory leaks and zero segfaults</li>
+    <li>Audits the generated C for race conditions, NULL dereferences, and logic bugs</li>
+    <li>Drops the verified binary in <code>out/</code></li>
 </ol>
 
 <h2>Requirements</h2>
@@ -70,10 +66,9 @@ No runtime, no interpreter, no dependencies.
 </table>
 
 <p>
-Note: You only need uv on your host machine. The AI agent automatically
-detects, installs, and configures all other development and verification
-dependencies (like C compilers, make, valgrind, and system headers)
-inside the build environment.
+That's it. The AI agent automatically detects, installs, and configures all other
+dependencies (C compilers, make, valgrind, system headers, and the Poolside CLI itself)
+on first run.
 </p>
 
 <h2>Install</h2>
@@ -85,37 +80,19 @@ uvx transpilatron your_code.py
 uv tool install transpilatron</code></pre>
 
 <p>
-On first run, the tool installs its dependencies and asks you to
-authenticate with <a href="https://poolside.ai/">poolside</a>.
+On first run, the tool bootstraps all its dependencies and asks you to
+authenticate with <a href="https://poolside.ai/">Poolside</a> (free).
 </p>
 
 <h2>Usage</h2>
 
-<pre><code># Default mode (full) — dynamic linking, libcurl, torch/tflite, web frameworks
+<pre><code># Default (full mode) — dynamic linking, libcurl, torch/tflite, web frameworks
 uvx transpilatron your_code.py
 
-# Minimal mode — fully static, raw sockets, no torch/tflite
+# Minimal mode — fully static, raw sockets, initramfs-safe
 uvx transpilatron --minimal your_code.py</code></pre>
 
-<p>
-The binary lands at <code>out/&lt;your_code&gt;</code>. That's it.
-</p>
-
-<h2>What it handles</h2>
-
-<ul>
-    <li>Pure Python logic → idiomatic C</li>
-    <li>HTTP (requests, urllib3) → raw BSD sockets (--minimal) or libcurl (--full)</li>
-    <li>JSON → cJSON</li>
-    <li>Threading → pthreads</li>
-    <li>File I/O → POSIX syscalls</li>
-    <li>Multi-file projects → one binary</li>
-    <li>Detects and fixes common Python bugs during transpilation</li>
-    <li>Supports many major Python libraries with C extensions by using their C backends or alternatives</li>
-    <li>The system attempts to translate pure Python libraries as well</li>
-    <li>Web frameworks (flask, fastapi, django) → libmicrohttpd (--full only)</li>
-    <li>torch / tensorflow → libtorch / TFLite C API (--full only)</li>
-</ul>
+<p>The binary lands at <code>out/&lt;your_code&gt;</code>. That's it.</p>
 
 <h2>Modes</h2>
 
@@ -130,31 +107,58 @@ The binary lands at <code>out/&lt;your_code&gt;</code>. That's it.
         <th>Best for</th>
     </tr>
     <tr>
-        <td>minimal</td>
+        <td><code>--minimal</code></td>
         <td></td>
         <td>Static only</td>
         <td>Raw BSD sockets</td>
         <td>Aborts with error</td>
         <td>Not supported</td>
-        <td>Zero-dependency binaries for initramfs, scratch containers, embedded</td>
+        <td>initramfs, scratch containers, embedded, zero-dependency binaries</td>
     </tr>
     <tr>
-        <td>full</td>
+        <td><code>--full</code></td>
         <td><strong>✓</strong></td>
         <td>Dynamic permitted</td>
         <td>libcurl</td>
         <td>libtorch / TFLite C API</td>
         <td>libmicrohttpd</td>
-        <td>General use, speed + versatility</td>
+        <td>General use, speed + versatility, web apps</td>
     </tr>
 </table>
+
+<h2>What it handles</h2>
+
+<ul>
+    <li>Pure Python logic → idiomatic C</li>
+    <li>HTTP (<code>requests</code>, <code>urllib3</code>) → raw BSD sockets (<code>--minimal</code>) or libcurl (<code>--full</code>)</li>
+    <li>JSON → cJSON</li>
+    <li>Threading → pthreads</li>
+    <li>File I/O → POSIX syscalls</li>
+    <li>Multi-file projects → one binary</li>
+    <li>Web frameworks (flask, fastapi, django) → libmicrohttpd (<code>--full</code> only)</li>
+    <li>torch / tensorflow → libtorch / TFLite C API (<code>--full</code> only)</li>
+    <li>Detects and fixes common Python bugs during transpilation</li>
+    <li>Memory-safe output verified by valgrind on every build</li>
+</ul>
+
+<h2>Quality &amp; Safety</h2>
+
+<p>Every build goes through an automatic quality pipeline:</p>
+
+<ul>
+    <li><strong>Compile errors</strong> — if <code>make</code> fails, the agent reads the errors, fixes the C source, and retries up to 3 times</li>
+    <li><strong>Memory safety</strong> — the binary is run under <code>valgrind --leak-check=full</code> to catch leaks and segfaults before delivery</li>
+    <li><strong>Logic audit</strong> — the agent reviews the generated C for race conditions, NULL pointer dereferences, off-by-one errors, and semantic bugs</li>
+    <li><strong>Missing deps</strong> — build tools and headers are auto-installed via your system package manager if missing</li>
+</ul>
 
 <h2>Limitations</h2>
 
 <ul>
     <li>Linux and macOS only</li>
-    <li>torch / tensorflow not supported under minimal mode</li>
+    <li>torch / tensorflow not supported in <code>--minimal</code> mode</li>
     <li>Some dynamic Python patterns (metaclasses, heavy monkey-patching) may not translate cleanly</li>
+    <li>Complex projects may occasionally require manual fixes</li>
 </ul>
 
 <h2>Examples</h2>
@@ -166,19 +170,17 @@ The binary lands at <code>out/&lt;your_code&gt;</code>. That's it.
 <h2>Comparison</h2>
 
 <p>
-While tools like Nuitka and PyInstaller package the CPython interpreter
-(and its dynamic standard libraries) to guarantee compatibility,
-<strong>transpilatron completely strips the CPython runtime</strong>.
-By translating Python logic into pure, dependency-free C, it allows you
-to build single, fully static binaries that run in environments with
-zero external libraries.
+While tools like Nuitka and PyInstaller package the CPython interpreter to guarantee
+compatibility, <strong>transpilatron completely strips the CPython runtime</strong>.
+By translating Python logic into pure C, it produces binaries that run in environments
+with zero external libraries.
 </p>
 
 <table border="1">
     <tr>
         <th>Tool</th>
         <th>Approach</th>
-        <th>CPython Runtime Dependency?</th>
+        <th>CPython Runtime?</th>
         <th>Fully Static Binaries?</th>
         <th>Output Size</th>
         <th>Ideal For</th>
@@ -187,9 +189,9 @@ zero external libraries.
         <td><strong>transpilatron</strong></td>
         <td>Source-to-source C translation via LLM</td>
         <td><strong>No</strong></td>
-        <td><strong>Yes</strong></td>
+        <td><strong>Yes (--minimal) / Optional (--full)</strong></td>
         <td>&lt; 1MB</td>
-        <td>CLI tools, microservices, serverless, initramfs, scratch containers, embedded</td>
+        <td>CLI tools, microservices, serverless, initramfs, scratch containers, embedded, web apps</td>
     </tr>
     <tr>
         <td>Nuitka</td>
@@ -204,7 +206,7 @@ zero external libraries.
         <td>Bundles Python interpreter + .pyc files</td>
         <td>Yes</td>
         <td>No</td>
-        <td>~30MB - 100MB+</td>
+        <td>~30MB–100MB+</td>
         <td>Desktop app distribution</td>
     </tr>
     <tr>
@@ -213,7 +215,7 @@ zero external libraries.
         <td>Yes</td>
         <td>No</td>
         <td>N/A</td>
-        <td>Accelerating Python code</td>
+        <td>Accelerating hot paths in Python</td>
     </tr>
     <tr>
         <td>PyPy</td>
@@ -238,17 +240,15 @@ If you're not using uv yet, you should be.
 
 <p>
 <em>
-transpilatron was originally created to compile standalone initramfs
-boot scripts for Noodlix, a Python-only operating system — but works
-for many Python applications.
+transpilatron was originally created to compile standalone initramfs boot scripts for
+<a href="https://github.com/NoodlixProject">Noodlix</a>, a Python-only operating system —
+but works for many Python applications.
 </em>
 </p>
 
 <p>
 <em>
-minimal mode outputs fully static binaries.
+<code>--minimal</code> mode outputs fully static binaries.
 Runs even in initramfs. No dynamic linker required.
 </em>
 </p>
-
-
