@@ -5,21 +5,22 @@ CRITICAL RULES:
 - ALL files go in build/ directory only. NEVER write outside build/.
 - C source files → build/main.c (or build/<name>.c)
 - Makefile → build/Makefile  
-- Binaries → build/exe/<name>
+- Binaries → build/exe/<name> (Name the output binary exactly after the entry file without the .py extension. e.g. web.py → build/exe/web, sort.py → build/exe/sort)
 - NEVER use absolute paths when writing files.
 - Copy final binary to out/ directory after compilation.
 - STATIC LINKING ONLY. No dynamic linking ever.
 - If make fails, read the compiler errors, fix the C source, and retry up to 3 times.
 - MEMORY & SAFETY CHECK: You MUST run the compiled binary to verify it does not segfault. If valgrind is available in the environment, run it under valgrind (`valgrind --leak-check=full --error-exitcode=1 ...`) to deterministically check for memory leaks and errors.
 - RE-CHECK CODE LOGIC: Audit the generated C code with your LLM knowledge before finalizing. Actively verify that there are no race conditions in multi-threaded code (proper mutex locking), no off-by-one errors, no NULL pointer dereferences, and no logic/semantic bugs.
-- SYSTEM DEPENDENCIES: If any required build tools, packages, or headers (e.g., `gcc`, `make`, `valgrind`, `libssl-dev`) are missing in the build environment, detect the system package manager (e.g., `apt-get`, `apk`, `brew`, `yum`, `dnf`) and install them before compiling.
+- SYSTEM DEPENDENCIES & PRIVILEGE ESCALATION: If any required build tools, packages, or headers (e.g., `gcc`, `make`, `valgrind`, `libssl-dev`) are missing in the build environment, detect the system package manager (e.g., `apt-get`, `apk`, `brew`, `yum`, `dnf`, `pacman`) and attempt to install them by prepending the package manager commands with `sudo`.
+- SUDO FAILURE & USER FALLBACK POLICY: If a `sudo`-driven installation command fails (due to password prompts, missing privileges, or non-interactive shells), DO NOT let the agent context hard-crash. Intercept the failure and output a clear, high-visibility message to stdout detailing the missing packages and explicitly instructing the human user to run transpilatron again with administrative privileges (`sudo uvx transpilatron ...`) or manually install the dependencies before retrying.
 
 WORKFLOW:
 1. Read the Python source file(s) starting from the entry file
 2. Follow all imports and transpile the full project
 3. Write C source to build/
-4. Write build/Makefile with static linking, output to build/exe/
-5. Check for and install any missing build/verification dependencies (e.g., `gcc`, `make`, `valgrind`) using the system package manager.
+4. Write build/Makefile with static linking, output to build/exe/ (ensuring name matches entry file without extension)
+5. Check for and install any missing build/verification dependencies using the system package manager with sudo.
 6. Run make from build/
 7. Run the compiled binary (under valgrind if available) to verify zero leaks and zero segfaults.
 8. Conduct a thorough audit of the C source files to ensure no race conditions, NULL-dereferences, or logic/semantic errors exist.
@@ -107,21 +108,22 @@ CRITICAL RULES:
 - ALL files go in build/ directory only. NEVER write outside build/.
 - C source files → build/main.c (or build/<name>.c)
 - Makefile → build/Makefile  
-- Binaries → build/exe/<name>
+- Binaries → build/exe/<name> (Name the output binary exactly after the entry file without the .py extension. e.g. web.py → build/exe/web, sort.py → build/exe/sort)
 - NEVER use absolute paths when writing files.
 - Copy final binary to out/ directory after compilation.
 - Dynamic linking permitted for performance-critical and native libraries (libcurl, libtorch, libtflite, etc.).
 - If make fails, read the compiler errors, fix the C source, and retry up to 3 times.
 - MEMORY & SAFETY CHECK: You MUST run the compiled binary to verify it does not segfault. If valgrind is available in the environment, run it under valgrind (`valgrind --leak-check=full --error-exitcode=1 ...`) to deterministically check for memory leaks and errors.
 - RE-CHECK CODE LOGIC: Audit the generated C code with your LLM knowledge before finalizing. Actively verify that there are no race conditions in multi-threaded code (proper mutex locking), no off-by-one errors, no NULL pointer dereferences, and no logic/semantic bugs.
-- SYSTEM DEPENDENCIES: If any required build tools, packages, or headers (e.g., `gcc`, `make`, `valgrind`, `libcurl-dev`, `libtorch`) are missing in the build environment, detect the system package manager (e.g., `apt-get`, `apk`, `brew`, `yum`, `dnf`) and install them before compiling.
+- SYSTEM DEPENDENCIES & PRIVILEGE ESCALATION: If any required build tools, packages, or headers (e.g., `gcc`, `make`, `valgrind`, `libcurl-dev`, `libtorch`, `libmicrohttpd-dev`) are missing in the build environment, detect the system package manager (e.g., `apt-get`, `apk`, `brew`, `yum`, `dnf`, `pacman`) and attempt to install them by prepending the package manager commands with `sudo`.
+- SUDO FAILURE & USER FALLBACK POLICY: If a `sudo`-driven installation command fails (due to password prompts, missing privileges, or non-interactive shells), DO NOT let the agent context hard-crash. Intercept the failure and output a clear, high-visibility message to stdout detailing the missing packages and explicitly instructing the human user to run transpilatron again with administrative privileges (`sudo uvx transpilatron ...`) or manually install the dependencies before retrying.
 
 WORKFLOW:
 1. Read the Python source file(s) starting from the entry file
 2. Follow all imports and transpile the full project
 3. Write C source to build/
-4. Write build/Makefile with dynamic linking where appropriate, output to build/exe/
-5. Check for and install any missing build/verification dependencies (e.g., `gcc`, `make`, `valgrind`) using the system package manager.
+4. Write build/Makefile with dynamic linking where appropriate, output to build/exe/ (ensuring name matches entry file without extension)
+5. Check for and install any missing build/verification dependencies using the system package manager with sudo.
 6. Run make from build/
 7. Run the compiled binary (under valgrind if available) to verify zero leaks and zero segfaults.
 8. Conduct a thorough audit of the C source files to ensure no race conditions, NULL-dereferences, or logic/semantic errors exist.
@@ -182,7 +184,7 @@ LIBRARY SHORTCUTS:
 
 WEB FRAMEWORKS:
 - flask/fastapi/django/bottle → libmicrohttpd (dynamically linked: -lmicrohttpd).
-  Embed a minimal HTTP server using libmicrohttpd's MHD_start_daemon().
+  You MUST use libmicrohttpd for full mode. Embed a minimal HTTP server using libmicrohttpd's MHD_start_daemon().
 - aiohttp → libcurl multi interface + libmicrohttpd for server
 - tornado → libmicrohttpd
 - websockets → libwebsockets (dynamically linked: -lwebsockets)
