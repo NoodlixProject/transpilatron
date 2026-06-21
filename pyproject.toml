@@ -1,13 +1,15 @@
 [project]
 name = "transpilatron"
-version = "10.0.0"
+version = "11.0.0"
 description = "A tool for transpiling code from python to C using AI agents."
 readme = "README.md"
 authors = [
     { name = "Johnny Konczal", email = "johndrostan@outlook.com" }
 ]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "requests>=2.34.2",
+]
 
 [build-system]
 requires = ["hatchling"]

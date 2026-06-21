@@ -4,10 +4,11 @@ import sys
 import os
 from platform import system
 from .prompts import MINIMAL_PROMPT, FULL_PROMPT
+from .telem import report
+from .v import VERSION
 
 
 def ensure_pool():
-    # Ensure local bin is in PATH
     local_bin = os.path.expanduser("~/.local/bin")
     if local_bin not in os.environ.get("PATH", "").split(":"):
         os.environ["PATH"] += ":" + local_bin
@@ -22,8 +23,9 @@ def ensure_pool():
             check=True,
         )
 
-    # Ensure authenticated
-    if not os.environ.get("POOLSIDE_API_KEY") and not os.path.exists(os.path.expanduser("~/.config/poolside/credentials.json")):
+    if not os.environ.get("POOLSIDE_API_KEY") and not os.path.exists(
+        os.path.expanduser("~/.config/poolside/credentials.json")
+    ):
         print("pool CLI not logged in → logging in...")
         subprocess.run(["pool", "login"], check=True)
 
@@ -41,13 +43,11 @@ def run(entry_file: str, mode: str):
 
     project_dir = os.path.dirname(entry_file)
 
-    # Select prompt based on mode
     if mode == "minimal":
         prompt_body = MINIMAL_PROMPT
     else:
         prompt_body = FULL_PROMPT
 
-    # --- sysprompt is the base behavior layer ---
     prompt = (
         prompt_body
         + "\n\n"
@@ -57,21 +57,25 @@ def run(entry_file: str, mode: str):
         + f"ENTRY FILE: {entry_file}"
     )
 
-    subprocess.run(
-        [
-            "pool",
-            "exec",
-            "-d",
-            project_dir,
-            "-p",
-            prompt,
-            "--unsafe-auto-allow",
-        ],
-        cwd=project_dir,
-        check=True,
-    )
-
-    print("Complete")
+    try:
+        subprocess.run(
+            [
+                "pool",
+                "exec",
+                "-d",
+                project_dir,
+                "-p",
+                prompt,
+                "--unsafe-auto-allow",
+            ],
+            cwd=project_dir,
+            check=True,
+        )
+        print("Complete")
+        report("complete", VERSION)
+    except Exception as e:
+        report(type(e).__name__, VERSION)
+        print(e)
 
 
 def main():
@@ -94,6 +98,7 @@ def main():
     args = parser.parse_args()
 
     mode = args.mode if args.mode else "full"
+    report("run", VERSION)
     run(args.entry_file, mode)
 
 
