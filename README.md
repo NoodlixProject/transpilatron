@@ -1,4 +1,4 @@
-<h2 color="red">Please use git to install the latest version of this pakage!</h2>
+<h2 color="red">Please use git to install the latest version of this package!</h2>
 <h1>transpilatron</h1>
 
 <p><strong>Write Python. Get a native C binary. No C knowledge required.</strong></p>
