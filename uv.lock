@@ -2,6 +2,12 @@ version = 1
 revision = 3
 requires-python = ">=3.14"
 
+[manifest]
+members = [
+    "telemetry-server",
+    "transpilatron",
+]
+
 [[package]]
 name = "blinker"
 version = "1.9.0"
@@ -473,6 +479,17 @@ wheels = [
 ]
 
 [[package]]
+name = "telemetry-server"
+version = "0.1.0"
+source = { virtual = "telemetry-server" }
+dependencies = [
+    { name = "flask" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "flask", specifier = ">=3.1.3" }]
+
+[[package]]
 name = "transpilatron"
 version = "11.0.0"
 source = { editable = "." }
@@ -482,7 +499,6 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "flask" },
     { name = "twine" },
 ]
 
@@ -490,10 +506,7 @@ dev = [
 requires-dist = [{ name = "requests", specifier = ">=2.34.2" }]
 
 [package.metadata.requires-dev]
-dev = [
-    { name = "flask", specifier = ">=3.1.3" },
-    { name = "twine", specifier = ">=6.2.0" },
-]
+dev = [{ name = "twine", specifier = ">=6.2.0" }]
 
 [[package]]
 name = "twine"
