@@ -304,6 +304,15 @@ If you're not using uv yet, you should be.
 
 <hr>
 
+
+<a href="https://www.star-history.com/?repos=NoodlixProject%2Ftranspilatron&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=NoodlixProject/transpilatron&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=NoodlixProject/transpilatron&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=NoodlixProject/transpilatron&type=date&legend=top-left" />
+ </picture>
+</a>
+<hr>
 <p>
 <em>
 transpilatron was originally created to compile standalone initramfs boot scripts for
