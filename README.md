@@ -306,7 +306,6 @@ If you're not using uv yet, you should be.
 
 
 
-<hr>
 <p>
 <em>
 transpilatron was originally created to compile standalone initramfs boot scripts for
