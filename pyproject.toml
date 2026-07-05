@@ -3,6 +3,7 @@ name = "transpilatron"
 version = "11.0.0"
 description = "A tool for transpiling code from python to C using AI agents."
 readme = "README.md"
+license = "AGPL-3.0-or-later"
 authors = [
     { name = "Johnny Konczal", email = "johndrostan@outlook.com" }
 ]

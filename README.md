@@ -327,3 +327,17 @@ but works for many Python applications.
 Runs even in initramfs. No dynamic linker required.
 </em>
 </p>
+
+<hr>
+
+<h2>License</h2>
+
+<p>
+AGPL-3.0 &copy; 2026 <strong>Johnny Konczal</strong> &lt;johnnytechsys@outlook.com&gt;
+</p>
+
+<p>
+This software is primarily licensed under the GNU Affero General Public
+License v3 (AGPL-3.0). The author reserves the right to offer commercial
+licensing for proprietary use cases &mdash; contact the author for inquiries.
+</p>
