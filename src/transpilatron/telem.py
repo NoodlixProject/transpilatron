@@ -1,6 +1,6 @@
 import requests
 import os
-ENDPOINT = "http://transpilatron-tememetry.vercel.app/ping"
+ENDPOINT = "https://transpilatron-telemetry.johnnytech.net/ping"
 message_seen = False
 
 def report(event_type: str, version: str) -> None:
